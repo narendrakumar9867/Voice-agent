@@ -1,23 +1,30 @@
-const textToSpeech = require("./tts.js");
-const speechToText = require("./stt.js");
-const processInput = require("./dialogue.js");
+const textToSpeech = require("@google-cloud/text-to-speech");
+const fs = require("fs");
+const { promisify } = require("util");
 
-const voiceAgent = async (audioFilePath) => {
-    let step = 0;
-    let userResponse = "";
+process.env.GOOGLE_APPLICATION_CREDENTIALS = "D:\\Projects\\service-account.json";
 
-    while (step !== -1) {
-        const botReply = await processInput(userResponse, step);
-        console.log("Bot: ", botReply.response);
+const client = new textToSpeech.TextToSpeechClient();
 
-        const ttsFile = await textToSpeech(botReply.response);
-        console.log(`Playing ${ttsFile}...`);
+const textToSpeechConvert = async (text) => {
+  try {
+    const request = {
+      input: { text },
+      voice: { languageCode: "en-US", ssmlGender: "NEUTRAL" },
+      audioConfig: { audioEncoding: "MP3" },
+    };
 
-        userResponse = await speechToText(audioFilePath);
-        console.log("User: ", userResponse);
+    const [response] = await client.synthesizeSpeech(request);
+    const writeFile = promisify(fs.writeFile);
+    await writeFile("output.mp3", response.audioContent, "binary");
 
-        step = botReply.nextStep;
-    }
+    console.log("Audio content written to file: output.mp3");
+  } catch (error) {
+    console.error("Error in text-to-speech:", error.message);
+  }
 };
 
-module.exports = voiceAgent;
+module.exports = {
+    textToSpeechConvert
+};
+

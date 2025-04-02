@@ -1,33 +1,37 @@
-const fs = require('fs');
-const { Readable } = require('stream');
-const vosk = require('vosk');
-const record = require('node-record-lpcm16');
+const { exec } = require("child_process");
+const fs = require("fs");
+const { OpenAI } = require("openai");
+require("dotenv").config(); // Load API key from .env file
 
-const MODEL_PATH = 'vosk-model-small-en-us-0.15';
-vosk.setLogLevel(0);
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY, // Set your OpenAI API key
+});
 
-const model = new vosk.Model(MODEL_PATH);
-const recognizer = new vosk.Recognizer({ model: model, sampleRate: 16000 });
+const speechText = async () => {
+    return new Promise((resolve, reject) => {
+        const outputFile = "audio.wav";
 
-const speechText = () => {
-    return new Promise((resolve) => {
-        const mic = record.start({
-            sampleRate: 16000,
-            threshold: 0,
-            verbose: false,
-            recordProgram: 'sox',
+        // Start recording from the microphone
+        const rec = exec(`sox -d -r 16000 -c 1 ${outputFile}`, (error) => {
+            if (error) reject(error);
         });
 
-        mic.on("data", (chunk) => {
-            if(recognizer.acceptWaveform(chunk)) {
-                const result = JSON.parse(recognizer.result());
-                resolve(result.text);
-                record.stop();
+        setTimeout(async () => {
+            rec.kill(); // Stop recording after 5 seconds
+
+            try {
+                const response = await openai.audio.transcriptions.create({
+                    file: fs.createReadStream(outputFile),
+                    model: "whisper-1",
+                });
+
+                fs.unlinkSync(outputFile); // Delete file after processing
+                resolve(response.text);
+            } catch (error) {
+                reject(error);
             }
-        });
+        }, 5000);
     });
-}
-
-module.exports = {
-    speechText
 };
+
+module.exports = { speechText };

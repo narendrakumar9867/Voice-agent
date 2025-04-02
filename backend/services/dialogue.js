@@ -1,4 +1,5 @@
 const { validateCTC, validateNoticePeriod } = require("./validate.js");
+const { Job } = require("../models/user_model.js");
 const chrono = require("chrono-node");
 
 const processInput = async (userInput, step, userName) => {
@@ -63,6 +64,4 @@ const processInput = async (userInput, step, userName) => {
     return { response, nextStep};
 };
 
-module.exports = {
-    processInput
-};
+module.exports = processInput;

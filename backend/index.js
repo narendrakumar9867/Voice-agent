@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { sequelize } = require("./config/database.js");
 const UserRoutes = require("./routes/user_route.js");
-const voiceAgent = require("./services/voice_agent.js");
+const { textToSpeechConvert } = require("./services/voice_agent.js");
 const VoiceRoutes = require("./routes/voice_route.js");
 
 const app = express();
@@ -16,5 +16,5 @@ sequelize.sync({ force: false }).then(() => console.log("Database & tables creat
 
 app.listen(PORT, async () => {
     console.log(`Server is starting on ${PORT}`);
-    await voiceAgent();
+    await textToSpeechConvert("Hello! this is test message.");
 });
