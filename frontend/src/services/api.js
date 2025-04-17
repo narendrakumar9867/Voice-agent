@@ -14,10 +14,12 @@ export const fetchJobs = async () => {
 
 export const addJob = async (jobData) => {
     try {
+        console.log("Sending job data to API: ", jobData);
         const response = await axios.post(`${API_URL}/jobs`, jobData);
+        console.log("api response: ", response.data);
         return response.data;
     } catch (error) {
-        console.error("Error adding job:", error);
+        console.error("Error adding job:", error.response || error.message);
         throw error;
     }
 };
@@ -42,10 +44,11 @@ export const deleteJob = async (id) => {
     }
 };
 
-export default {
+const apiService = {
     fetchJobs,
     addJob,
     updateJob,
     deleteJob
 };
 
+export default apiService;
