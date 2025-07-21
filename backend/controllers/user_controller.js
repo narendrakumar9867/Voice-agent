@@ -12,7 +12,7 @@ const addJob = async (req, res) => {
 
 const listJobs = async (req, res) => {
     try {
-        const jobs = await Job.findAll(req.body);
+        const jobs = await Job.findAll(); // Removed req.body - findAll doesn't need it
         res.json(jobs);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -35,7 +35,7 @@ const addCandidate = async (req, res) => {
             notice_period,
             experience
         });
-        return res.status(201).json({ msg: "candicate added successfully", candidate });
+        return res.status(201).json({ msg: "candidate added successfully", candidate });
     } catch (err) {
         res.status(500).json({ msg: "error adding candidate", error: err.message});
     }
@@ -43,7 +43,7 @@ const addCandidate = async (req, res) => {
 
 const getCandidates = async (req, res) => {
     try {
-        const candidates = await Candidate.findAll(req.body);
+        const candidates = await Candidate.findAll(); // Removed req.body
         return res.status(200).json(candidates);
     } catch (error) {
         return res.status(500).json({ msg: "error fetching candidates", error: error.message });

@@ -3,12 +3,16 @@ const voiceAgent = require("../services/voice_agent.js");
 const router = express.Router();
 
 router.post("/voice-interaction", async (req, res) => {
-    const { audioFilePath } = req.body;
+    const { jobId, candidateName } = req.body;
     try {
-        await voiceAgent(audioFilePath);
-        res.json({ msg: "Voice interaction completed successfully." });
+        const result = await voiceAgent(jobId || 1, candidateName || "there");
+        res.json({ 
+            msg: "Voice interaction completed successfully.",
+            result: result
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message});
+        console.error("Voice interaction error:", error);
+        res.status(500).json({ error: error.message });
     }
 });
 

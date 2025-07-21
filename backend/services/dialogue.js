@@ -1,14 +1,13 @@
 const { validateCTC, validateNoticePeriod } = require("./validate.js");
-const { Job } = require("../models/user_model.js");
 const chrono = require("chrono-node");
 
-const processInput = async (userInput, step, userName) => {
+const processInput = async (userInput, step, userName, job) => {
     let nextStep = step;
     let response = "";
 
     switch (step) {
         case 0:
-            response = `Hello ${userName}, this is xyz company regarding a ${Job.title} opportunity. Are you interested in this role?`;
+            response = `Hello ${userName}, this is XYZ company regarding a ${job.title} opportunity. Are you interested in this role?`;
             nextStep = 1;
             break;
         case 1:
@@ -26,7 +25,7 @@ const processInput = async (userInput, step, userName) => {
                 response = "Can you share your current and expected CTC?";
                 nextStep = 3;
             } else {
-                response = "Sorry, I didn't understand. can you repeat your notice period?";
+                response = "Sorry, I didn't understand. Can you repeat your notice period?";
             }
             break;
         case 3:
@@ -41,7 +40,7 @@ const processInput = async (userInput, step, userName) => {
         case 4:
             const interviewDate = chrono.parseDate(userInput);
             if(interviewDate) {
-                response = `We've scheduled your interview on ${interviewDate}. Is that correct?`;
+                response = `We've scheduled your interview on ${interviewDate.toDateString()}. Is that correct?`;
                 nextStep = 5;
             } else {
                 response = "Can you specify a date for your interview next week?";
@@ -49,7 +48,7 @@ const processInput = async (userInput, step, userName) => {
             break;
         case 5:
             if(userInput.toLowerCase().includes("yes")) {
-                response = "Your interview is confiremd! Thank you.";
+                response = "Your interview is confirmed! Thank you.";
                 nextStep = -1;
             } else {
                 response = "Okay, let's reschedule. When would you like the interview?";
@@ -61,7 +60,7 @@ const processInput = async (userInput, step, userName) => {
             response = "I didn't understand that. Can you please repeat?";
     }
 
-    return { response, nextStep};
+    return { response, nextStep };
 };
 
 module.exports = processInput;
